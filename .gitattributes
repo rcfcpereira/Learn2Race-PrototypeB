@@ -1,0 +1,6 @@
+# Keep LF line endings: these files are copied to the Raspberry Pis and the
+# ESP32 toolchain, where CRLF breaks shell scripts.
+* text=auto eol=lf
+*.pdf binary
+*.png binary
+*.jpg binary
