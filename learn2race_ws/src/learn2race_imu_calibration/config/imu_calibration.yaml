@@ -1,0 +1,12 @@
+# References (full entries: docs/references.md at the repository root):
+#   [R12] REP 103, units and axes: units and axes
+# More details: README.md of this package
+
+# Stationary calibration defaults for the Grove LSM6DS3 raw IMU topic.
+imu_calibration_node:
+  ros__parameters:
+    imu_topic: /imu/data_raw
+    sample_count: 500
+    output_path: ~/.ros/learn2race/imu_calibration.yaml
+    expected_gravity_mps2: 9.80665
+    max_gravity_error_mps2: 1.5

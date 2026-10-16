@@ -1,0 +1,42 @@
+# References (full entries: docs/references.md at the repository root):
+#   [R2]  Dragster rules: dragster rules
+#   [R10] ROS 2 Jazzy documentation: ROS 2 actions
+# More details: README.md of this package
+
+# Goal: dragster run constraints
+string race_id
+string lane_id
+bool autonomous_only
+bool enforce_lane_discipline
+bool stop_on_rule_violation
+float32 target_speed_mps
+builtin_interfaces/Duration max_run_time
+builtin_interfaces/Duration start_delay
+float32 finish_line_distance_m
+float32 max_accel_mps2
+float32 max_decel_mps2
+float32 max_lateral_deviation_m
+string[] allowed_modes
+string notes
+
+---
+# Result: outcome and rules status
+bool accepted
+bool success
+float32 elapsed_time_s
+float32 top_speed_mps
+float32 distance_m
+float32 average_speed_mps
+string[] rule_violations
+string final_status
+
+---
+# Feedback: live run telemetry
+float32 elapsed_time_s
+float32 current_speed_mps
+float32 current_distance_m
+float32 target_speed_mps
+float32 lateral_deviation_m
+string state
+bool rule_violation_detected
+string active_rule

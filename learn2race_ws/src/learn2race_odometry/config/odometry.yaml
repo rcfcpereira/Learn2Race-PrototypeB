@@ -1,0 +1,17 @@
+# References (full entries: docs/references.md at the repository root):
+#   [R42] Siegwart et al., Autonomous Mobile Robots: wheel radius, track width, encoder resolution
+#   [R62] CHP-20GP-180ABHL motor datasheet: gear ratio, PPR
+# More details: README.md of this package; Learn2Race-PrototypeA: firmware/lib/RobotConfig/src/RobotConfig.h
+
+# Odometry TF defaults for the ESP32/micro-ROS DDSM firmware.
+odom_tf_broadcaster_node:
+  ros__parameters:
+    # `/odom` is published by the firmware and contains pose + twist.
+    odom_topic: /odom
+    # Frames are the standard chain consumed by SLAM Toolbox and Nav2.
+    odom_frame: odom
+    base_frame: base_link
+    # Keep launch-controlled frame names instead of trusting firmware strings.
+    use_msg_frame_ids: false
+    # Use Raspberry Pi ROS time so TF aligns with LD06 and camera timestamps.
+    use_msg_stamp: false

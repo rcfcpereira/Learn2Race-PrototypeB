@@ -1,0 +1,43 @@
+# References (full entries: docs/references.md at the repository root):
+#   [R47] Macenski & Jambrecic (2021) SLAM Toolbox: SLAM Toolbox parameters
+# More details: README.md of this package
+
+# SLAM Toolbox online async mapping configuration for the LD06 LiDAR.
+slam_toolbox:
+  ros__parameters:
+    # Core frames: slam_toolbox publishes map -> odom and consumes odom -> base_link.
+    odom_frame: odom
+    map_frame: map
+    base_frame: base_link
+    # scan_fixed_node (slam_b.launch.py) resamples the LD06 to a constant beam count; on /scan
+    # slam_toolbox dropped every scan whose count differed from the first (~37 %).
+    scan_topic: /scan_fixed
+    mode: mapping
+
+    # Mapping behavior tuned for a small indoor robot and a 2D room map.
+    use_sim_time: false
+    debug_logging: false
+    throttle_scans: 1
+    transform_publish_period: 0.02
+    map_update_interval: 1.0
+    resolution: 0.05
+    max_laser_range: 8.0
+    minimum_time_interval: 0.1
+    transform_timeout: 0.3
+    tf_buffer_duration: 30.0
+    scan_queue_size: 1
+
+    # Process new scans after modest motion so the map grows steadily.
+    minimum_travel_distance: 0.08
+    minimum_travel_heading: 0.10
+    use_scan_matching: true
+    use_scan_barycenter: true
+    do_loop_closing: true
+    loop_search_maximum_distance: 3.0
+    link_match_minimum_response_fine: 0.1
+    link_scan_maximum_distance: 1.5
+    distance_variance_penalty: 0.5
+    angle_variance_penalty: 1.0
+    fine_search_angle_offset: 0.00349
+    coarse_search_angle_offset: 0.349
+    coarse_angle_resolution: 0.0349

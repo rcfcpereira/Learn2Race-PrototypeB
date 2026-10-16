@@ -1,0 +1,31 @@
+# References (full entries: docs/references.md at the repository root):
+#   [R40] Astrom & Murray, Feedback Systems (PID): PID gains
+# More details: README.md of this package
+
+# Optional outer-loop velocity PID for body Twist control.
+twist_pid_controller_node:
+  ros__parameters:
+    setpoint_topic: /cmd_vel_setpoint
+    measured_topic: /ddsm/measured_twist
+    output_topic: /cmd_vel
+    control_rate_hz: 30.0
+    command_timeout_s: 0.5
+    measured_timeout_s: 0.5
+    pass_through_on_measured_timeout: true
+    enabled: true
+
+    # Linear axis controls forward speed in m/s.
+    linear_kp: 0.20
+    linear_ki: 0.00
+    linear_kd: 0.00
+    linear_integral_limit: 0.20
+    linear_correction_limit: 0.08
+    linear_output_limit: 0.35
+
+    # Angular axis controls yaw rate in rad/s.
+    angular_kp: 0.20
+    angular_ki: 0.00
+    angular_kd: 0.00
+    angular_integral_limit: 0.40
+    angular_correction_limit: 0.20
+    angular_output_limit: 1.50

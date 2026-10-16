@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<package format="3">
+  <!-- Standalone odometry helpers for Learn2Race. -->
+  <name>learn2race_odometry</name>
+  <version>0.1.0</version>
+  <description>Odometry TF and configuration package for the Learn2Race robot.</description>
+  <maintainer email="1181915@isep.ipp.pt">Ruben Pereira</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>ament_python</buildtool_depend>
+
+  <!-- Odometry messages are converted into the TF chain used by SLAM and Nav2. -->
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>nav_msgs</exec_depend>
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>tf2_ros</exec_depend>
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

@@ -1,0 +1,16 @@
+# colcon
+learn2race_ws/build/
+learn2race_ws/install/
+learn2race_ws/log/
+# third-party sources cloned during installation
+learn2race_ws/src/micro-ROS-Agent/
+learn2race_ws/src/micro_ros_agent/
+learn2race_ws/src/micro_ros_msgs/
+learn2race_ws/src/ldlidar_stl_ros2/
+# PlatformIO
+firmware/.pio/
+firmware/.vscode/
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/

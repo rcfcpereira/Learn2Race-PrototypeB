@@ -1,0 +1,124 @@
+# References (full entries: docs/references.md at the repository root):
+#   [R64] Waveshare DDSM Driver HAT / DDSM210: DDSM drivetrain
+#   [R79] LDROBOT STL-06P lidar, ldlidar_stl_ros2: lidar
+# More details: README.md of this package
+
+# Prototype B - the teaching and mapping platform, built for a different purpose
+# from Prototype A and not entered in competition (188 mm wide overall).
+# Competition nodes are therefore not launched by default, but can be enabled
+# for classroom demonstration of the state machine.
+
+/**:
+  ros__parameters:
+    robot_name: learn2race_b
+    use_sim_time: false
+
+cmd_vel_mux:
+  ros__parameters:
+    competition_mode: false   # teleop permitted for teaching
+    publish_hz: 25.0
+    source_timeout_seconds: 0.5
+
+safety_monitor:
+  ros__parameters:
+    odom_timeout_seconds: 0.5
+    imu_timeout_seconds: 1.0
+    require_scan: true
+
+lsm6ds3_imu:
+  ros__parameters:
+    # Measured with calibrate_imu_axes on 2026-09-26: the Grove breakout is
+    # mounted aligned with the body (x forward, y left, z up) and yaw is
+    # positive anticlockwise, so the identity mapping is correct.
+    axis_x_source: 0
+    axis_x_sign: 1
+    axis_y_source: 1
+    axis_y_sign: 1
+    axis_z_source: 2
+    axis_z_sign: 1
+    gyro_sign: 1
+    axis_mapping_verified: true
+    # calibrate_imu mode:=gyro, 2026-09-26, after a 60 s warm-up. Uncorrected
+    # this drifts up to 226 deg/min; re-measure if the heading creeps.
+    gyro_bias: [0.057823, -0.065794, -0.016050]
+
+vl6180_tof:
+  ros__parameters:
+    i2c_bus: 1
+    mux_address: 0x70
+    channels: [0, 1, 2]
+    # front, left, right (m). Left at 0: two tape series disagreed by 7-11 mm (zero point/target),
+    # larger than any per-sensor offset (test 4.7, 15 Oct 2026).
+    range_offsets_m: [0.0, 0.0, 0.0]
+    publish_hz: 20.0
+
+tof050c:
+  ros__parameters:
+    i2c_bus: 1
+    address: 0x52
+    max_range_m: 0.50
+    publish_hz: 20.0
+
+battery_monitor:
+  ros__parameters:
+    # 'ads1115' uses a divider on a spare channel of the ADC already fitted for
+    # the start-light sensor: voltage only, two resistors, no new hardware.
+    # 'ina226' adds current, and therefore energy, at the cost of a module.
+    # 'power_module' is the least invasive: an inline APM/Pixhawk module with
+    # XT60 connectors, read through two analogue channels. Nothing is soldered
+    # into the power path. 'ads1115' uses a divider and optional low-side shunt.
+    backend: power_module
+    cells: 4
+    cell_floor_volts: 3.50
+    cell_full_volts: 4.20
+    publish_hz: 1.0
+    ads_address: 0x48
+    ads_channel: 1          # channel 0 is the start-light sensor
+    ads_full_scale_volts: 4.096
+    divider_ratio: 4.70     # 100k/27k; MEASURE the fitted resistors and set this
+    # Current sensing. Set true once a low-side shunt is fitted across AIN2-AIN3.
+    shunt_enabled: false
+    ads_shunt_pair: [2, 3]
+    ads_shunt_full_scale_volts: 0.256   # 7.8 uV/bit, ~1.6 mA on a 5 mOhm shunt
+    ads_shunt_data_rate: 8              # slowest: best rejection of 20 kHz PWM
+    ads_shunt_ohms: 0.005               # 3 W part: dissipates 2 W at 20 A
+    ads_shunt_sign: -1                  # low-side drop reads negative
+    current_offset_a: 0.0               # zero this with the motors disarmed
+    # power_module backend (inline XT60 module):
+    pm_voltage_channel: 1
+    pm_current_channel: 2
+    pm_full_scale_volts: 4.096
+    pm_volt_multiplier: 10.1      # 3DR default; CALIBRATE against a meter
+    pm_amps_per_volt: 17.0        # 3DR default; CALIBRATE under a known load
+    pm_current_zero_volts: 0.0    # read this with the motors disarmed
+
+    # INA226 backend, unused unless backend is ina226:
+    ina_address: 0x40
+    shunt_ohms: 0.002
+    max_expected_amps: 20.0
+
+grove_lsm6ds3_imu_node:
+  ros__parameters:
+    i2c_bus: 1
+    i2c_address: 106
+    frame_id: imu_link
+    publish_rate_hz: 100.0
+    # REP-103 body frame: x forward, y left, z up. Sources are 0/1/2 for the
+    # sensor X/Y/Z channels. Determine with:
+    #   ros2 run learn2race_evaluation calibrate_imu_axes
+    # The identity below is a placeholder and is only correct if the breakout
+    # happens to be mounted aligned with the robot.
+    axis_x_source: 0
+    axis_x_sign: 1
+    axis_y_source: 1
+    axis_y_sign: 1
+    axis_z_source: 2
+    axis_z_sign: 1
+    gyro_sign: 1
+    # From calibrate_imu; re-measure after changing the axis mapping.
+    gyro_bias: [0.0, 0.0, 0.0]
+
+odometry:
+  ros__parameters:
+    wheel_radius: 0.03674     # DDSM210 74.5 mm wheel, measured effective (firmware)
+    track_width: 0.1816       # effective, LiDAR-calibrated (mean of 3 runs); wheel centres 168.5 mm

@@ -1,0 +1,37 @@
+# References (full entries: docs/references.md at the repository root):
+#   [R10] ROS 2 Jazzy documentation: ROS 2 actions
+# More details: README.md of this package
+
+# Goal: request to bring camera + line detection online
+bool start_camera
+bool start_line_detection
+string image_topic
+string cmd_vel_topic
+string image_encoding
+string line_color
+bool use_hsv_detection
+bool black_calibration_mode
+float32 black_threshold
+float32 roi_top_ratio
+float32 roi_bottom_ratio
+string camera_frame_id
+bool request_preview
+
+---
+# Result: final state
+bool success
+bool camera_started
+bool line_detector_started
+bool line_detected
+bool preview_started
+bool calibration_complete
+string effective_mode
+string message
+
+---
+# Feedback: progress updates while starting and tracking
+string state
+float32 line_error
+float32 confidence
+float32 detection_threshold
+float32 calibration_progress

@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package format="3">
+  <!-- EKF localization configuration for wheel odometry + raw IMU. -->
+  <name>learn2race_localization</name>
+  <version>0.1.0</version>
+  <description>EKF localization package for Learn2Race using robot_localization.</description>
+  <maintainer email="1181915@isep.ipp.pt">Ruben Pereira</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>ament_python</buildtool_depend>
+
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+  <exec_depend>robot_localization</exec_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

@@ -1,0 +1,30 @@
+# References (full entries: docs/references.md at the repository root):
+#   [R13] REP 105, coordinate frames: sensor frames
+#   [R12] REP 103, units and axes: axes
+# More details: README.md of this package
+
+# --- Sensor positions (TF) ----------------------------------------------------
+# Kept out of prototype_b.yaml, which the ROS parameter parser requires to hold
+# only <node>: ros__parameters: blocks. prototype_b.launch.py reads this file
+# and publishes one static base_link -> sensor transform per entry.
+#
+# base_link is the MIDPOINT BETWEEN THE TWO FRONT DRIVE WHEELS, at axle height.
+# Prototype B drives on its front wheels, so most sensors sit BEHIND base_link
+# (negative x). Metres and radians; x forward, y left, z up (REP-103); yaw is
+# the direction the sensor faces, anticlockwise from straight ahead.
+# base_link height = wheel radius (36.6 mm, DDSM210) above the floor, so z =
+# height above floor - 0.0366. LiDAR and camera positions measured 2026-09-28;
+# ToF measured 2026-10-15 (x from the plate edges, with the axle taken 11 mm behind the front
+# edge from the camera entry: an estimate); the IMU entry is still a placeholder (measured: false).
+# Cameras: give the LENS centre; the optical-frame rotation is added by the
+# launch. Set measured: true once the numbers come from a tape measure.
+sensor_frames:
+  measured: false
+  frames:
+    base_laser:     {x: -0.020, y: 0.0,    z: 0.1384, yaw: -1.5708}  # 20 mm behind axle, 175 mm above floor; scan 0 deg points to the robot's RIGHT (ahead = scan 90 deg; checked with a box ahead and to the left, 2026-10-15)
+    imu_link:       {x: 0.0, y: 0.0,    z: 0.0, yaw: 0.0}      # axes verified aligned
+    tof_front_link: {x: 0.011,  y: 0.0,    z: 0.0,    yaw: 0.0}      # centre line at the plate's front edge; 36 mm above the floor (= axle height)
+    tof_left_link:  {x: -0.121, y: 0.064,  z: 0.0,    yaw: 1.5708}   # 13.5 cm from the front, 8 cm from the back; 30 mm in from the wheel's outside
+    tof_right_link: {x: -0.121, y: -0.064, z: 0.0,    yaw: -1.5708}  # as left, mirrored
+    left_camera:    {x: 0.030, y: 0.0313, z: 0.0774, yaw: 0.0}   # 30 mm ahead of axle, 114 mm above floor; baseline 62.6 mm
+    right_camera:   {x: 0.030, y: -0.0313, z: 0.0774, yaw: 0.0}

@@ -1,0 +1,112 @@
+# References (full entries: docs/references.md at the repository root):
+#   [R1]  TrackBotGP rules 2026: race rules behind the referee settings
+#   [R60] Waveshare General Driver for Robots: board
+#   [R62] CHP-20GP-180ABHL motor datasheet: drivetrain
+#   [R67] LTR-303ALS-01 datasheet: start light
+# More details: README.md of this package
+
+# Prototype A - dual purpose: competition entrant and classroom platform.
+# CHP-20GP-180ABHL geared motors, Waveshare General Driver (ESP32 + micro-ROS),
+# STL-06P LiDAR via the driver board, camera line following.
+#
+# WARNING: wheel_radius and track_width below are PLACEHOLDERS. Measure them and
+# verify with a one-metre drive test before trusting odometry.
+
+/**:
+  ros__parameters:
+    robot_name: learn2race_a
+    use_sim_time: false
+
+competition_fsm:
+  ros__parameters:
+    mode: trackbotgp          # trackbotgp | dragster
+    total_laps: 3
+    pit_after_lap: 2
+    pit_min_seconds: 5.0
+    lap_timeout_seconds: 60.0
+
+cmd_vel_mux:
+  ros__parameters:
+    competition_mode: true    # teleop blocked
+    publish_hz: 25.0
+    source_timeout_seconds: 0.5
+
+safety_monitor:
+  ros__parameters:
+    odom_timeout_seconds: 0.5
+    imu_timeout_seconds: 1.0
+    require_scan: false
+
+led_signalling:
+  ros__parameters:
+    flash_hz: 4.0
+    finish_flash_count: 3
+    colour_ready:    [0, 255, 0]
+    colour_lap:      [0, 0, 255]
+    colour_pit_in:   [255, 200, 0]
+    colour_pit_hold: [255, 100, 0]
+    colour_finish:   [255, 255, 255]
+    colour_fault:    [255, 0, 0]
+
+line_array:
+  ros__parameters:
+    i2c_bus: 1
+    address: 0x48
+    channels: 8
+    publish_hz: 100.0
+    calibrate: false
+    calibration_min: [0, 0, 0, 0, 0, 0, 0, 0]
+    calibration_max: [255, 255, 255, 255, 255, 255, 255, 255]
+    on_line_threshold: 0.45
+    filter_alpha: 0.4
+
+ltr303:
+  ros__parameters:
+    i2c_bus: 1
+    address: 0x29
+    publish_hz: 10.0
+
+# --- Geometry -----------------------------------------------------------
+# Prototype A is a rear-wheel differential drive with a front ball caster.
+#
+# base_link sits at the MIDPOINT OF THE DRIVEN AXLE, not at the geometric
+# centre of the chassis. Differential-drive kinematics are referenced to the
+# axle, so placing the frame elsewhere makes the pose correct while the robot
+# appears to swing sideways whenever it turns.
+#
+# Every sensor is ahead of that axle, so each has a lever arm: when the robot
+# rotates in place, the sensors translate. The offsets below are what the URDF
+# and the controllers need, measured forward from the axle midpoint.
+geometry:
+  ros__parameters:
+    base_link_at: driven_axle
+    caster_offset_x: 0.0        # MEASURE: caster contact point ahead of axle
+    line_array_offset_x: 0.0    # MEASURE: array ahead of axle (look-ahead)
+    camera_offset_x: 0.0        # MEASURE
+    camera_offset_z: 0.0        # MEASURE: height above ground
+    lidar_offset_x: 0.0         # MEASURE
+    lidar_offset_z: 0.0         # MEASURE
+    start_sensor_offset_x: 0.0  # MEASURE: the rule-exempt protrusion
+
+odometry:
+  ros__parameters:
+    wheel_radius: 0.0325      # PLACEHOLDER - measure
+    track_width: 0.150        # PLACEHOLDER - measure
+    encoder_ppr: 11           # measured: 1276 counts per wheel turn
+    gear_ratio: 29.16         # datasheet: 320.76 hall pulses / 11 PPR
+    # Rear-drive: the caster is unloaded in acceleration and loaded in braking.
+    # A ball caster can judder under load, which shows up as run-to-run spread
+    # in stopping distance rather than as a bias.
+
+track_controller:
+  ros__parameters:
+    # The line array sits ahead of the pivot, so its lateral error is amplified
+    # by the lever arm: a given steering rate moves the array further than it
+    # moves the robot. This makes the loop responsive but prone to oscillation,
+    # and the proportional gain must be tuned with the measured
+    # line_array_offset_x rather than copied from a centre-pivot platform.
+    # As a starting point, reduce the gain in proportion to the offset.
+    lookahead_m: 0.0            # set from geometry.line_array_offset_x
+    kp: 1.0
+    kd: 0.0
+    max_angular: 2.0

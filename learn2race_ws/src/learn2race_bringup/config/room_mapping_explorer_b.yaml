@@ -1,0 +1,27 @@
+# Autonomous room exploration on Prototype B (room_mapping_explorer_node), as tested on
+# 15 October 2026 (room_auto_4..7). Start with: ~/robot.sh explore [SECONDS]
+# References (full entries: docs/references.md at the repository root):
+#   [R47] Macenski & Jambrecic (2021) SLAM Toolbox
+room_mapping_explorer_node:
+  ros__parameters:
+    scan_topic: /scan
+    cmd_vel_topic: autonomy/cmd_vel      # through cmd_vel_mux; the node arms the mux while exploring
+    laser_yaw_deg: -90.0                 # LD06 0 deg points to the robot's right (sensor_frames_b.yaml)
+    mode: wall_follow                    # or bounce
+    follow_side: right
+    wall_distance_m: 0.40
+    linear_speed_mps: 0.12
+    crawl_speed_mps: 0.06
+    turn_speed_radps: 0.55
+    max_angular_radps: 0.6
+    obstacle_distance_m: 0.55
+    emergency_distance_m: 0.22
+    corridor_half_width_m: 0.14
+    max_run_s: 180.0
+    # VL6180X guard and the gyro sidestep past low objects (odometry from the EKF)
+    tof_stop_m: 0.10
+    tof_side_m: 0.15
+    odom_topic: /odometry/filtered
+    escape_turn_deg: 90.0
+    escape_side_m: 0.40
+    escape_pass_m: 0.80
