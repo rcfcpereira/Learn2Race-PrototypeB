@@ -134,6 +134,36 @@ Lift the wheels off the floor, then:
 
 On the PC, start the gamepad bridge (see Learn2Race-PC-Control). On the robot, start `python3 ~/Learn2Race-PrototypeB/tools/udp_teleop.py`. Hold LB and move the sticks: the wheels should turn.
 
+Then stop the base (`~/robot.sh stop`) and run the hardware check with the robot on a stand: `~/robot.sh check wheels_lifted:=true` (see [USAGE.md](USAGE.md#hardware-check)).
+
+## 9. Automatic updates
+
+Each robot updates itself from this repository, so a change reaches every unit with one `git push` and a power cycle instead of an SD-card image or an SSH session per robot. Install the service once:
+
+```bash
+~/Learn2Race-PrototypeB/tools/install_update_service.sh          # follow main
+~/Learn2Race-PrototypeB/tools/install_update_service.sh v1.0     # or pin a release tag
+```
+
+At every boot, once the network is up, the `learn2race-update` service runs `tools/update_robot.sh`, which:
+
+1. does nothing if the robot is running or the network is down;
+2. refuses to update a checkout with uncommitted changes (commit calibration changes first);
+3. fetches and moves to the pinned branch or tag (`L2R_REF` in `/etc/default/learn2race-update`);
+4. runs `tools/check_robot_config.py`, which checks that `robot.yaml` agrees with `firmware/platformio.ini` and the ROS configuration, and rolls back if it does not;
+5. installs missing dependencies with `rosdep` (when `sudo` needs no password) and rebuilds the workspace; if the build fails, it rolls back to the previous revision and rebuilds that;
+6. refreshes `~/robot.sh` and records the version in `~/.learn2race_version`.
+
+A revision that failed is not retried at every boot; push a fix, or force a retry with `L2R_FORCE=1 ~/robot.sh update`. The robot is never started by the update: start it with `~/robot.sh` as usual, which refuses to start while an update is building. The ESP32 is not flashed automatically: when `firmware/` changed, the log says so, and the firmware is flashed from a PC (section 7).
+
+```bash
+~/robot.sh update               # update now (the robot must be stopped)
+~/robot.sh status               # shows the installed version
+cat ~/update_logs/latest.log    # what the last update did
+```
+
+`robot.yaml`, at the root of this repository, records the robot's identity and calibration constants. Two robots built from the same release differ only in that file. When a constant changes, change it in `robot.yaml` and in the file it is compiled from, together; `python3 tools/check_robot_config.py` confirms they agree.
+
 ## Troubleshooting
 
 | Symptom | Cause and fix |

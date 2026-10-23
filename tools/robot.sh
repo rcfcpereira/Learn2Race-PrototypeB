@@ -22,6 +22,8 @@
 #   ~/robot.sh attach               watch the logs (leave: Ctrl+b then d)
 #   ~/robot.sh stop                 stop everything, including orphans
 #   ~/robot.sh status               what runs, safety state, load
+#   ~/robot.sh update               pull the pinned revision and rebuild (tools/update_robot.sh)
+#   ~/robot.sh check [wheels_lifted:=true]  hardware check: I2C, topics, LED, motors and encoders
 #
 # After an SSH drop, just reconnect: the run is still going.
 
@@ -42,8 +44,11 @@ stop_all() {
   echo "stopped ($(pgrep -af '[l]earn2race_ws/install|[m]icro_ros_agent|[s]lam_toolbox' | wc -l) processes left)"
 }
 
+updating() { systemctl is-active --quiet learn2race-update 2>/dev/null || pgrep -f "[u]pdate_robot.sh" >/dev/null; }
+
 base() {
   if running; then echo "Already running: ~/robot.sh stop first"; exit 1; fi
+  if updating; then echo "An update is building (~/update_logs/latest.log): wait for it to finish."; exit 1; fi
   tmux new-session -d -s $SESSION -n base \
     "$ROS; ros2 launch learn2race_bringup prototype_b.launch.py teleop:=false $*; bash"
   echo "Base starting in tmux session '$SESSION' (~15 s for the sensors)."
@@ -83,6 +88,20 @@ case "$1" in
   status)
     running && echo "RUNNING: $(tmux list-windows -t $SESSION -F '#W' 2>/dev/null | tr '\n' ' ')" || echo "stopped"
     uptime
+    [ -f ~/.learn2race_version ] && echo "software: $(tr '\n' ' ' < ~/.learn2race_version)"
+    updating && echo "UPDATE IN PROGRESS: ~/update_logs/latest.log"
     running && bash -c "$ROS; timeout 5 ros2 topic echo --once /safety/fault_reason 2>/dev/null | head -1; timeout 5 ros2 topic echo --once /safety/fault 2>/dev/null | head -1" ;;
-  *) sed -n 2,25p "$0" ;;
+  update)
+    if running; then echo "Stop the robot first: ~/robot.sh stop"; exit 1; fi
+    if systemctl cat learn2race-update >/dev/null 2>&1; then
+      sudo systemctl start learn2race-update; tail -n 25 ~/update_logs/latest.log
+    else
+      bash "$(dirname "$(readlink -f ~/learn2race_ws)")/tools/update_robot.sh"
+    fi ;;
+  check)
+    if running; then echo "Stop the robot first: ~/robot.sh stop"; exit 1; fi
+    shift
+    echo "Hardware check. For the motor test, LIFT THE ROBOT and add wheels_lifted:=true."
+    bash -c "$ROS; ros2 launch learn2race_bringup hardware_check.launch.py prototype:=b $*" ;;
+  *) sed -n 2,27p "$0" ;;
 esac
