@@ -1,0 +1,25 @@
+# Learn2Race pull-and-rebuild update (NFR2). Template: install it with
+# tools/install_update_service.sh, which fills in the user and the path.
+#
+# Runs once at every boot, after the network is up, and on request:
+#   ~/robot.sh update      (or: sudo systemctl start learn2race-update)
+# Log: journalctl -u learn2race-update, and ~/update_logs/latest.log
+
+[Unit]
+Description=Learn2Race pull-and-rebuild update
+Wants=network-online.target
+After=network-online.target time-sync.target
+
+[Service]
+Type=oneshot
+User=@USER@
+EnvironmentFile=-/etc/default/learn2race-update
+ExecStart=@REPO@/tools/update_robot.sh
+# A first build on a Pi 4 takes about 40 min; later updates a few minutes.
+TimeoutStartSec=2h
+Nice=10
+# A failed update leaves the previous build in place; it must not hold up boot.
+SuccessExitStatus=1
+
+[Install]
+WantedBy=multi-user.target

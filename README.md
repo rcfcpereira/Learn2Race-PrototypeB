@@ -28,7 +28,8 @@ The software also supports Sharp IR, ultrasonic and ToF050C rangers, but none of
 |---|---|
 | [`firmware/`](firmware/README.md) | ESP32 firmware (PlatformIO, micro-ROS): DDSM motor bus, odometry, command watchdog; stereo calibration target in `firmware/calibration/` |
 | [`learn2race_ws/`](learn2race_ws/README.md) | ROS 2 Jazzy workspace that runs on the Pi 5 |
-| [`tools/`](tools/) | `robot.sh` (run helper), `udp_teleop.py` (receives the PC gamepad) |
+| [`robot.yaml`](robot.yaml) | Robot identity and calibration constants, checked against the firmware and ROS configuration |
+| [`tools/`](tools/) | `robot.sh` (run helper), automatic update service, `robot.yaml` check, `udp_teleop.py` (receives the PC gamepad) |
 | [`docs/references.md`](docs/references.md) | References cited in the code headers as `[Rnn]` |
 | [`photos/`](photos/) | Photographs of the robot |
 

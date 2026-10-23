@@ -1,0 +1,71 @@
+# Learn2Race robot description: Prototype B.
+#
+# The one place that records which robot this repository builds and the
+# calibration constants that make its measurements comparable (NFR3). Two units
+# built from the same release should differ only in this file.
+#
+# The values are not loaded by the firmware: the ESP32 constants are compiled
+# from firmware/platformio.ini, and the ROS nodes read
+# learn2race_ws/src/learn2race_bringup/config/prototype_b.yaml. Instead,
+# tools/check_robot_config.py compares those files with this one and fails on
+# any difference, and tools/update_robot.sh runs that check before every
+# rebuild. Change a constant here and in the file it is compiled from, together.
+#
+#   python3 tools/check_robot_config.py         # from the repository root
+
+robot:
+  prototype: b
+  name: learn2race_b
+  role: education (perception and mapping)
+  sbc: Raspberry Pi 5
+  os: Ubuntu 24.04 LTS
+  ros_distro: jazzy
+  bringup_launch: prototype_b.launch.py
+  bringup_config: learn2race_ws/src/learn2race_bringup/config/prototype_b.yaml
+
+firmware:
+  platformio_ini: firmware/platformio.ini
+  environment: esp32dev
+  micro_ros_arduino: v2.0.8-jazzy
+  serial_device: /dev/ttyAMA0            # Pi 5 header UART (GPIO14/15)
+  serial_baud: 921600
+
+drivetrain:
+  type: differential, two DDSM210 hub motors, caster
+  wheel_radius_m: 0.03674                # effective (straight-line tests, 2026-09-28)
+  track_width_m: 0.1816                  # effective, LiDAR-calibrated; 0.1685 between wheel centres
+  motor_count: 2
+
+timing:
+  control_period_ms: 40                  # MOTOR_COUNT x 20 ms
+  odom_publish_period_ms: 40
+  cmd_timeout_ms: 500
+
+# Fixed parts of the I2C bus 1, probed by the hardware check. The three
+# VL6180X sit behind the PCA9548A and are checked through their topics.
+i2c:
+  bus: 1
+  devices:
+    - {name: PCA9548A multiplexer, address: 0x70, required: true}
+    - {name: LSM6DS3 IMU, address: 0x6a, required: true}
+    - {name: SSD1306 OLED, address: 0x3c, required: true}
+    - {name: ADS1115 ADC (start light), address: 0x48, required: false}
+
+# Topics the hardware check expects with the bringup running (teleop off).
+# min_hz is about 60 % of the nominal rate.
+topics:
+  - {name: odom, type: nav_msgs/msg/Odometry, min_hz: 15}
+  - {name: imu/data_raw, type: sensor_msgs/msg/Imu, min_hz: 30}
+  - {name: imu/data, type: sensor_msgs/msg/Imu, min_hz: 30}
+  - {name: scan, type: sensor_msgs/msg/LaserScan, min_hz: 6}
+  - {name: /tof/front, type: sensor_msgs/msg/Range, min_hz: 12}
+  - {name: /tof/left, type: sensor_msgs/msg/Range, min_hz: 12}
+  - {name: /tof/right, type: sensor_msgs/msg/Range, min_hz: 12}
+
+# Frame names; their positions are in config/sensor_frames_b.yaml.
+frames:
+  base: base_link                        # midpoint of the driven axle
+  odom: odom
+  imu: imu_link
+  laser: base_laser
+  frames_file: learn2race_ws/src/learn2race_bringup/config/sensor_frames_b.yaml

@@ -43,6 +43,7 @@ setup(
             'wheel_direction_test = learn2race_evaluation.wheel_direction_test_node:main',
             'calibrate_odometry = learn2race_evaluation.calibrate_odometry_node:main',
             'calibrate_line_array = learn2race_evaluation.calibrate_line_array_node:main',
+            'hardware_check = learn2race_evaluation.hardware_check_node:main',
         ],
     },
 )

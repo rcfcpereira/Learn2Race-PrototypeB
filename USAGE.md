@@ -15,6 +15,19 @@ The robot is operated through `~/robot.sh`. It runs everything inside a `tmux` s
 | `~/robot.sh attach` | Show the logs (leave with `Ctrl+b`, then `d`) |
 | `~/robot.sh status` | What runs, the safety state and the load |
 | `~/robot.sh stop` | Stop everything, including orphan processes |
+| `~/robot.sh check [wheels_lifted:=true]` | Hardware check (below) |
+| `~/robot.sh update` | Pull the pinned revision and rebuild ([INSTALL.md](INSTALL.md#9-automatic-updates)) |
+
+### Hardware check
+
+`~/robot.sh check` tests the robot from the bus up and prints a PASS/FAIL list, saved to `~/run_logs/hardware_check-<time>.txt`. Use it after assembly, after a repair, and whenever the robot misbehaves, before looking at the software:
+
+```bash
+~/robot.sh check                       # robot.yaml, I2C devices, ESP32 link, sensor topics, status LED
+~/robot.sh check wheels_lifted:=true   # also motors and encoders: put the robot on a stand first
+```
+
+It starts the bringup outside competition mode, then checks in order: `robot.yaml`; each fixed I2C device answers at its address (absent means wiring or power); `/odom` arrives (agent, serial link and firmware); each sensor topic in `robot.yaml` publishes at its rate (silent means the driver or the device, slow means bus contention or settings); the status LED shows red, green, blue and white (watch it); and, with the wheels lifted, a slow forward command and a left turn compared with `/odom`. A wheel that fails is diagnosed further with `wheel_direction_test` (learn2race_evaluation).
 
 ## Driving with a gamepad
 

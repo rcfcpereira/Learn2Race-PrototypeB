@@ -12,6 +12,7 @@ rows so the numbers in the dissertation are the numbers the tools produced.
 | `endurance_logger` | FR11 | Logs pack voltage to CSV across a full round, unattended |
 | `microros_benchmark` | FR8, NFR9 | Transport latency, rate holding under load, drop rate |
 | `startup_probe` | NFR2, NFR5 | Time from power-on to a commandable robot |
+| `hardware_check` | NFR5 | First-line check from the bus up: I2C devices, ESP32 link, sensor rates, status LED, motors and encoders (`~/robot.sh check`) |
 
 `stop_test` deliberately stops publishing rather than sending a zero twist. A
 zero twist tests commanded braking; silence tests the firmware watchdog, which

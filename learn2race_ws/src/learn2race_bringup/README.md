@@ -17,6 +17,8 @@ through `tools/robot.sh` (`base`, `slam`, `explore`, `newmap`, `save NAME`,
 | `wheel_odom_tf` | `true` | Publish odom → base_link from wheel odometry |
 | `ekf` | `false` | Wheel + gyro EKF (`ekf_b_imu.yaml`) publishes odom → base_link instead |
 
+`launch/hardware_check.launch.py` runs the first-line hardware check (`~/robot.sh check`, see USAGE.md).
+
 Mapping: `slam_b.launch.py` (SLAM Toolbox fed by `scan_fixed_node`, which
 resamples every lidar scan to 453 beams), `explore_b.launch.py` (autonomous
 exploration, `room_mapping_explorer_node`, settings in
